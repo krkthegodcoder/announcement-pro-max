@@ -1,67 +1,312 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+<meta charset="UTF-8">
+<title>Announcement Studio</title>
 
-<title>Final Boss Announcement System</title>
-
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+margin:0;
+min-height:100vh;
+background:linear-gradient(-45deg,#2563eb,#7c3aed,#22c55e,#0ea5e9);
+background-size:400% 400%;
+animation:gradient 15s ease infinite;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+@keyframes gradient{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+.container{
+width:95%;
+max-width:900px;
+padding:30px;
+border-radius:20px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(12px);
+box-shadow:0 20px 50px rgba(0,0,0,0.3);
+}
+
+h1{
+text-align:center;
+}
+
+.page{
+display:none;
+animation:slide .4s;
+}
+
+.active{
+display:block;
+}
+
+@keyframes slide{
+from{opacity:0;transform:translateX(40px)}
+to{opacity:1;transform:translateX(0)}
+}
+
+input,textarea,select{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+border:none;
+font-size:14px;
+}
+
+button{
+padding:12px 20px;
+margin:10px 5px;
+border:none;
+border-radius:8px;
+background:white;
+color:#333;
+font-weight:600;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 20px rgba(0,0,0,.2);
+}
+
+.preview{
+margin-top:20px;
+padding:30px;
+border-radius:16px;
+background:white;
+color:black;
+text-align:center;
+}
+
+.logo{
+max-width:120px;
+margin-bottom:10px;
+}
+
+.controls{
+text-align:center;
+}
+
+.themeBtns button{
+margin:5px;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<canvas id="particles"></canvas>
-
 <div class="container">
 
-<h1 id="heading">📢 Final Boss Announcement System</h1>
+<h1>📢 Announcement Studio</h1>
 
-<input type="file" id="logoUpload">
+<!-- PAGE 1 -->
 
-<br>
+<div class="page active" id="p1">
 
-<select id="lang" onchange="changeLanguage()">
-<option value="en">English</option>
-<option value="ur">اردو</option>
-</select>
+<h2>Step 1 — Announcement Text</h2>
 
-<select onchange="changeTheme()">
-<option value="">Theme</option>
-<option value="dark">Dark</option>
-<option value="school">School</option>
-<option value="neon">Neon</option>
-</select>
+<input id="title" placeholder="Title">
 
-<input id="title" placeholder="Announcement Title">
+<textarea id="msg" rows="5" placeholder="Write your announcement"></textarea>
 
-<textarea id="message" placeholder="Write announcement"></textarea>
-
-<input type="date" id="date">
-
-<br>
-
-<button onclick="generate()">Generate</button>
-<button onclick="aiGenerate()">AI Generate</button>
-<button onclick="downloadImage()">Download</button>
-<button onclick="shareLink()">Share</button>
-
-<br>
-
-<input id="search" placeholder="Search announcements" onkeyup="searchAnnouncements()">
-
-<div id="announcement"></div>
-
-<h2>Announcement Board</h2>
-
-<div id="board"></div>
+<div class="controls">
+<button onclick="next(2)">Next ➜</button>
+</div>
 
 </div>
 
-<script src="script.js"></script>
+<!-- PAGE 2 -->
+
+<div class="page" id="p2">
+
+<h2>Step 2 — Details</h2>
+
+<input type="date" id="date">
+
+<input id="org" placeholder="School / Organization">
+
+<input type="file" id="logoInput">
+
+<div class="controls">
+<button onclick="next(1)">⬅ Back</button>
+<button onclick="next(3)">Next ➜</button>
+</div>
+
+</div>
+
+<!-- PAGE 3 -->
+
+<div class="page" id="p3">
+
+<h2>Step 3 — Theme</h2>
+
+<div class="themeBtns">
+
+<button onclick="setTheme('#ffffff','#111')">Light</button>
+
+<button onclick="setTheme('#111','#fff')">Dark</button>
+
+<button onclick="setTheme('#00f0ff','#000')">Neon</button>
+
+<button onclick="setTheme('#2563eb','#fff')">School Blue</button>
+
+</div>
+
+<label>Custom Background</label>
+
+<input type="color" id="bgColor">
+
+<label>Text Color</label>
+
+<input type="color" id="txtColor">
+
+<div class="controls">
+<button onclick="next(2)">⬅ Back</button>
+<button onclick="build()">Next ➜</button>
+</div>
+
+</div>
+
+<!-- PAGE 4 -->
+
+<div class="page" id="p4">
+
+<h2>Preview</h2>
+
+<div id="preview" class="preview"></div>
+
+<div class="controls">
+
+<button onclick="next(3)">⬅ Back</button>
+
+<button onclick="download()">Download Image</button>
+
+<button onclick="share()">Share Link</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let bg="#fff"
+let txt="#000"
+let logoURL=""
+
+document.getElementById("logoInput").onchange=function(e){
+
+let reader=new FileReader()
+
+reader.onload=function(){
+logoURL=reader.result
+}
+
+reader.readAsDataURL(e.target.files[0])
+
+}
+
+function next(n){
+
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
+
+document.getElementById("p"+n).classList.add("active")
+
+}
+
+function setTheme(b,t){
+
+bg=b
+txt=t
+
+}
+
+function build(){
+
+let title=document.getElementById("title").value
+let msg=document.getElementById("msg").value
+let date=document.getElementById("date").value
+let org=document.getElementById("org").value
+
+let customBg=document.getElementById("bgColor").value
+let customTxt=document.getElementById("txtColor").value
+
+if(customBg) bg=customBg
+if(customTxt) txt=customTxt
+
+let preview=document.getElementById("preview")
+
+preview.style.background=bg
+preview.style.color=txt
+
+preview.innerHTML=`
+
+${logoURL?`<img src="${logoURL}" class="logo">`:""}
+
+<h2>${title}</h2>
+
+<p>${msg}</p>
+
+<b>${org}</b>
+
+<br>
+
+<small>${date}</small>
+
+`
+
+next(4)
+
+}
+
+function download(){
+
+html2canvas(document.querySelector("#preview")).then(canvas=>{
+
+let link=document.createElement("a")
+
+link.download="announcement.png"
+
+link.href=canvas.toDataURL()
+
+link.click()
+
+})
+
+}
+
+function share(){
+
+let text=document.getElementById("preview").innerText
+
+navigator.clipboard.writeText(text)
+
+alert("Announcement copied! You can paste and share it.")
+
+}
+
+</script>
 
 </body>
-
 </html>
