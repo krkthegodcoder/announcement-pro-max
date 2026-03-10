@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Final Boss Announcement System</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="container">
+
+<h1 id="heading">📢 Final Boss Announcement System</h1>
+
+<input type="file" id="logoUpload">
+
+<br>
+
+<select id="lang" onchange="changeLanguage()">
+<option value="en">English</option>
+<option value="ur">اردو</option>
+</select>
+
+<select onchange="changeTheme()">
+<option value="">Theme</option>
+<option value="dark">Dark</option>
+<option value="school">School</option>
+<option value="neon">Neon</option>
+</select>
+
+<input id="title" placeholder="Announcement Title">
+
+<textarea id="message" placeholder="Write announcement"></textarea>
+
+<input type="date" id="date">
+
+<br>
+
+<button onclick="generate()">Generate</button>
+<button onclick="aiGenerate()">AI Generate</button>
+<button onclick="downloadImage()">Download</button>
+<button onclick="shareLink()">Share</button>
+
+<br>
+
+<input id="search" placeholder="Search announcements" onkeyup="searchAnnouncements()">
+
+<div id="announcement"></div>
+
+<h2>Announcement Board</h2>
+
+<div id="board"></div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
